@@ -71,61 +71,97 @@ GO
 
 
 
-/* kolobocije in špageti
+CREATE OR ALTER PROCEDURE dbo.MOVE_Hanoi
 
-USE QL;
+/**************************************************************
+Procedure:          dbo.DRAW_Hanoi
+Create Date:        2021-12-25
+Author:             Tomaz Kastrun
 
---move.hanoi <- function(k, from, to, via) {
---    if (k > 1) {
---      move.hanoi(k - 1, from, via, to)
---      move.hanoi(1, from, to, via)
---      move.hanoi(k - 1, via, to, from)
+Usage:
+	exec dbo.MOVE_Hanoi 1,2
 
+ToDO:
 
--- exec dbo.MOVE 1,2
+************************************************************* */
 
--- SELECT * FROM dbo.Hanoi
-
-
-declare @from int = 1
-declare @to int = 2
-
-DECLARE @from_variable VARCHAR(10) = (select column_name from information_Schema.columns where  table_name = 'hanoi' and table_Schema = 'dbo' and ordinal_position = (@from + 1))
-print @from_variable
-DECLARE @to_variable VARCHAR(10) = (select column_name from information_Schema.columns where  table_name = 'hanoi' and table_Schema = 'dbo' and ordinal_position = (@to + 1))
-print @to_variable
-
-DECLARE @select NVARCHAR(1000)
-SET @select = 'SELECT top 1 '+@from_variable+' FROM dbo.hanoi where '+@from_Variable+' <> '''' order by id asc'
-
-DROP TABLE IF EXISTS #ring_value
-CREATE table #ring_value  (val int)
-INSERT INTO #ring_value
-EXEC sp_executesql @select
+	 @from INT
+	,@to INT
+AS
+BEGIN
 
 
-SELECT val as ring_Value from #ring_value
+		-- internal values
 
-DECLARE @ring_position INT = 0
+		DECLARE @from_variable VARCHAR(10) = (select column_name from information_Schema.columns where  table_name = 'hanoi' and table_Schema = 'dbo' and ordinal_position = (@from + 1))
+		print @from_variable
+		DECLARE @to_variable VARCHAR(10) = (select column_name from information_Schema.columns where  table_name = 'hanoi' and table_Schema = 'dbo' and ordinal_position = (@to + 1))
+		print @to_variable
 
+		-- FROM position
+		DECLARE @from_position NVARCHAR(1000)
+		SET @from_position =  'SELECT top 1 ID FROM dbo.hanoi where '+@from_Variable+' <> '''' order by id asc'
 
-DECLARE @update NVARCHAR(1000)
-SET @update = 'update dbo.hanoi set '+@to_variable+' = (select val from #ring_value) WHERE ID = '+CAST(@ring_position AS VARCHAR(10))+''
+		DROP TABLE IF EXISTS #from_pos
+		CREATE table #from_pos  (val int)
+		INSERT INTO #from_pos
+		EXEC sp_executesql @from_position
 
-EXEC sp_executesql @update
+		-- FROM value
+		DECLARE @from_value NVARCHAR(1000)
+		SET @from_value =  'SELECT top 1 '+@from_variable+' FROM dbo.hanoi where '+@from_Variable+' <> '''' order by id asc'
 
-select * from hanoi
-
-
---DECLARE @update NVARCHAR(1000)
---SET @update = 'SELECT top 1 '+@from_variable+' FROM dbo.hanoi where '+@from_Variable+' <> '''' order by id asc'
+		DROP TABLE IF EXISTS #from_val
+		CREATE table #from_val  (val int)
+		INSERT INTO #from_val
+		EXEC sp_executesql @from_value
 
 
 
+		-- TO position
+		DECLARE @to_position NVARCHAR(1000)
+		SET @to_position =  'SELECT top 1 ID FROM dbo.hanoi where '+@to_variable+' = '''' order by id desc'
+
+		DROP TABLE IF EXISTS #to_pos
+		CREATE table #to_pos  (val int)
+		INSERT INTO #to_pos
+		EXEC sp_executesql @to_position
+
+
+		-- TO value
+		DECLARE @to_value NVARCHAR(1000)
+		SET @to_value =  'SELECT top 1 '+@to_variable+' FROM dbo.hanoi where '+@to_variable+' = '''' order by id desc'
+
+		DROP TABLE IF EXISTS #to_val
+		CREATE table #to_val  (val int)
+		INSERT INTO #to_val
+		EXEC sp_executesql @to_value
+
+		SELECT * FROM #to_val
+		SELECT * FROM #to_pos
+		SELECT * FROM #from_Val
+		select * from #from_pos
+
+		--- internal update
+
+		-- add rules for update!!!!
+
+		--update FROM pos/value
+		DECLARE @update_from NVARCHAR(1000)
+		SET @update_from = 'update dbo.hanoi set '+@from_variable+' = (select '' '' ) WHERE ID =  (SELECT val FROM #from_pos) '
+		print @update_from
+		EXEC sp_executesql @update_from
+
+
+		--update TO pos/value
+		DECLARE @update_to NVARCHAR(1000)
+		SET @update_to = 'update dbo.hanoi set '+@to_variable+' = (select val from #from_Val) WHERE ID = (SELECT val FROM #to_pos)'
+		print @update_to
+		EXEC sp_executesql @update_to
 
 
 
+		select * from hanoi
 
-
-
-*/
+END;
+GO
