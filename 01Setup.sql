@@ -117,7 +117,6 @@ BEGIN
 		EXEC sp_executesql @from_value
 
 
-
 		-- TO position
 		DECLARE @to_position NVARCHAR(1000)
 		SET @to_position =  'SELECT top 1 ID FROM dbo.hanoi where '+@to_variable+' = '''' order by id desc'
@@ -137,31 +136,42 @@ BEGIN
 		INSERT INTO #to_val
 		EXEC sp_executesql @to_value
 
-		SELECT * FROM #to_val
-		SELECT * FROM #to_pos
-		SELECT * FROM #from_Val
-		select * from #from_pos
 
-		--- internal update
+		-- TO Prev Value
+		DECLARE @prev_to_val NVARCHAR(1000)
+		SET @prev_to_val = 'select top 1 '+@to_variable+' from hanoi where  '+@to_variable +' <> 0 order by id asc'
 
-		-- add rules for update!!!!
+		DROP TABLE IF EXISTS #to_prev_val
+		CREATE table #to_prev_val  (val int)
+		INSERT INTO #to_prev_val
+		EXEC sp_executesql @prev_to_val
 
-		--update FROM pos/value
-		DECLARE @update_from NVARCHAR(1000)
-		SET @update_from = 'update dbo.hanoi set '+@from_variable+' = (select '' '' ) WHERE ID =  (SELECT val FROM #from_pos) '
-		print @update_from
-		EXEC sp_executesql @update_from
+			--- internal update
+			-- add rules for update!!!!
+
+			-- add rules for update!!!!
+			IF ((SELECT ISNULL(val,0) FROM #to_prev_val) < (SELECT val FROM #from_val))
+			BEGIN
+				SELECT 'Nope'
+			END
+			ELSE
+			BEGIN
+				--update FROM pos/value
+				DECLARE @update_from NVARCHAR(1000)
+				SET @update_from = 'update dbo.hanoi set '+@from_variable+' = (select '' '' ) WHERE ID =  (SELECT val FROM #from_pos) '
+				print @update_from
+				EXEC sp_executesql @update_from
 
 
-		--update TO pos/value
-		DECLARE @update_to NVARCHAR(1000)
-		SET @update_to = 'update dbo.hanoi set '+@to_variable+' = (select val from #from_Val) WHERE ID = (SELECT val FROM #to_pos)'
-		print @update_to
-		EXEC sp_executesql @update_to
+				--update TO pos/value
+				DECLARE @update_to NVARCHAR(1000)
+				SET @update_to = 'update dbo.hanoi set '+@to_variable+' = (select val from #from_Val) WHERE ID = (SELECT val FROM #to_pos)'
+				print @update_to
+				EXEC sp_executesql @update_to
+			END
 
-
-
-		select * from hanoi
-
+		--select without ID
+		select T1, T2, T3 from hanoi
+		-- SELECT V1, V2, V3 FROM DrawHanoi
 END;
 GO
