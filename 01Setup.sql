@@ -13,7 +13,7 @@ Description:        Creates a table that stores the number of
 					to store the moves.
 					Table dbo.DrawHanoi is used to output the rings
 					rods. 
-Procedure output:	[dbo].[DrawHanoi]
+Procedure output:	[dbo].[Hanoi]
 Parameter(s):       @rings - Number of rings; e.g.: 5 = 5 rings 
 					on 3 rods; Type: TINYINT (max 255 rings!)
 Usage:              EXEC dbo.DRAW_Hanoi
@@ -29,8 +29,8 @@ ToDO:
 AS
 BEGIN
 
+	SET NOCOUNT ON;
 
-	DECLARE @i INT = 1
 	DECLARE @j INT = 1
 
 	DROP TABLE IF EXISTS dbo.Hanoi;
@@ -44,28 +44,29 @@ BEGIN
 	,T3 TINYINT NOT NULL
 	)
 
-	DROP TABLE IF EXISTS dbo.DrawHanoi;
-	CREATE TABLE dbo.DrawHanoi (
-	 ID TINYINT IDENTITY(1,1) NOT NULL
-	,V1 VARCHAR(500) NOT NULL
-	,V2 VARCHAR(500) NOT NULL
-	,V3 VARCHAR(500) NOT NULL
-	)
-
 	'
 
 	WHILE (@rings >= @j)
 	BEGIN
 		SET @TableCreate = @TableCreate + ' 
 			INSERT INTO dbo.Hanoi(T1, T2, T3) VALUES ('+CAST(@j AS varchar(10))+',0,0)
-			INSERT INTO dbo.DrawHanoi(V1, V2, V3) VALUES ('+CAST(REPLICATE('''#''',@j*2) AS varchar(500))+','' '','' '')
 			'
 		SET @j = @j+1
 	END
 
 	EXEC sp_executesql @tableCreate
 
-	SELECT * FROM dbo.DrawHanoi
+
+		declare @max int = @rings*4
+		
+		SELECT 
+			 REPLICATE(' ',(@max - t1*2)/2) + REPLICATE('#', T1*2) + REPLICATE(' ',(@max - t1*2)/2) as T1
+			,REPLICATE(' ',(@max - t1*2)/2) + REPLICATE('#', T2*2) + REPLICATE(' ',(@max - t1*2)/2)  AS T2
+			,REPLICATE(' ',(@max - t1*2)/2) + REPLICATE('#', T3*2) + REPLICATE(' ',(@max - t1*2)/2)  AS T3 
+		FROM hanoi
+		ORDER BY ID ASC
+
+
 END;
 GO
 
@@ -74,15 +75,27 @@ GO
 CREATE OR ALTER PROCEDURE dbo.MOVE_Hanoi
 
 /**************************************************************
-Procedure:          dbo.DRAW_Hanoi
+Procedure:          dbo.MOVE_Hanoi
 Create Date:        2021-12-25
 Author:             Tomaz Kastrun
+Description:        Creates a table that stores the number of
+					rings used in the game with three rods.
+					Table name is dbo.Hanoi and is used to
+					to store the moves.
+					Table dbo.DrawHanoi is used to output the rings
+					rods. 
+Procedure output:	[dbo].[Hanoi]
+Parameter(s):       @from - rod number taking the first ring 
+					@to - rod number putting the same ring
 
 Usage:
-	exec dbo.MOVE_Hanoi 1,2
+		EXEC dbo.MOVE_Hanoi
+			 @from = 1
+			,@to = 2
 
 ToDO:
-
+					- Align Drawing of tower!
+					- Stop / finish the game
 ************************************************************* */
 
 	 @from INT
@@ -90,6 +103,7 @@ ToDO:
 AS
 BEGIN
 
+		SET NOCOUNT ON;
 
 		-- internal values
 
@@ -170,8 +184,15 @@ BEGIN
 				EXEC sp_executesql @update_to
 			END
 
-		--select without ID
-		select T1, T2, T3 from hanoi
-		-- SELECT V1, V2, V3 FROM DrawHanoi
+			declare @rings int = (select COUNT(*) from dbo.hanoi)
+			declare @max int = @rings*4
+		
+			SELECT 
+				 REPLICATE(' ',(@max - t1*2)/2) + REPLICATE('#', T1*2) + REPLICATE(' ',(@max - t1*2)/2) as T1
+				,REPLICATE(' ',(@max - t1*2)/2) + REPLICATE('#', T2*2) + REPLICATE(' ',(@max - t1*2)/2)  AS T2
+				,REPLICATE(' ',(@max - t1*2)/2) + REPLICATE('#', T3*2) + REPLICATE(' ',(@max - t1*2)/2)  AS T3 
+			FROM dbo.hanoi
+			ORDER BY ID ASC
+
 END;
 GO
