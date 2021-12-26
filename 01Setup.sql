@@ -69,3 +69,63 @@ BEGIN
 END;
 GO
 
+
+
+/* kolobocije in špageti
+
+USE QL;
+
+--move.hanoi <- function(k, from, to, via) {
+--    if (k > 1) {
+--      move.hanoi(k - 1, from, via, to)
+--      move.hanoi(1, from, to, via)
+--      move.hanoi(k - 1, via, to, from)
+
+
+-- exec dbo.MOVE 1,2
+
+-- SELECT * FROM dbo.Hanoi
+
+
+declare @from int = 1
+declare @to int = 2
+
+DECLARE @from_variable VARCHAR(10) = (select column_name from information_Schema.columns where  table_name = 'hanoi' and table_Schema = 'dbo' and ordinal_position = (@from + 1))
+print @from_variable
+DECLARE @to_variable VARCHAR(10) = (select column_name from information_Schema.columns where  table_name = 'hanoi' and table_Schema = 'dbo' and ordinal_position = (@to + 1))
+print @to_variable
+
+DECLARE @select NVARCHAR(1000)
+SET @select = 'SELECT top 1 '+@from_variable+' FROM dbo.hanoi where '+@from_Variable+' <> '''' order by id asc'
+
+DROP TABLE IF EXISTS #ring_value
+CREATE table #ring_value  (val int)
+INSERT INTO #ring_value
+EXEC sp_executesql @select
+
+
+SELECT val as ring_Value from #ring_value
+
+DECLARE @ring_position INT = 0
+
+
+DECLARE @update NVARCHAR(1000)
+SET @update = 'update dbo.hanoi set '+@to_variable+' = (select val from #ring_value) WHERE ID = '+CAST(@ring_position AS VARCHAR(10))+''
+
+EXEC sp_executesql @update
+
+select * from hanoi
+
+
+--DECLARE @update NVARCHAR(1000)
+--SET @update = 'SELECT top 1 '+@from_variable+' FROM dbo.hanoi where '+@from_Variable+' <> '''' order by id asc'
+
+
+
+
+
+
+
+
+
+*/
