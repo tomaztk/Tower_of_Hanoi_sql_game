@@ -135,6 +135,10 @@ BEGIN
 		CREATE table #from_val  (val int)
 		INSERT INTO #from_val
 		EXEC sp_executesql @from_value
+		IF (SELECT COUNT(*) FROM #from_val) = 0
+		BEGIN 
+			INSERT INTO #from_val VALUES (0)
+		END
 
 
 		-- TO position
@@ -167,16 +171,11 @@ BEGIN
 		EXEC sp_executesql @prev_to_val
 
         -- number of rings!
-		declare @rings int = (select COUNT(*) from dbo.hanoi)
-		declare @max int = @rings*4
+		DECLARE @rings int = (SELECT COUNT(*) FROM dbo.hanoi)
+		DECLARE @max int = @rings*4
 
-        -- check Tower 2 and Tower 3
-        DECLARE @t2 INT = (SELECT COUNT(T2) FROM Hanoi WHERE T2 <> 0)
-        DECLARE @t3 INT = (SELECT COUNT(T3) FROM Hanoi WHERE T3 <> 0)
-    
 
 			--- internal update
-			-- add rules for update!!!!
 
 			-- add rules for update!!!!
 			IF ((SELECT ISNULL(val,0) FROM #to_prev_val) < (SELECT val FROM #from_val))
@@ -204,13 +203,6 @@ BEGIN
                         print @update_to
                         EXEC sp_executesql @update_to
 
-                        IF (@T2 = @rings OR @T3 = @rings)
-                        BEGIN
-                           SELECT 'Game Won!'
-                            -- Initialize New Game
-                           EXEC dbo.INIT_Hanoi @rings
-                        END
-
                     END
 			END
 
@@ -221,6 +213,17 @@ BEGIN
 				,REPLICATE(' ',(@max - T3*2)/2) + REPLICATE('#', T3*2) + REPLICATE(' ',(@max - T3*2)/2)  AS T3 
 			FROM dbo.hanoi
 			ORDER BY ID ASC
+
+
+			-- check Tower 2 and Tower 3
+			DECLARE @t2 INT = (SELECT COUNT(T2) FROM Hanoi WHERE T2 <> 0)
+			DECLARE @t3 INT = (SELECT COUNT(T3) FROM Hanoi WHERE T3 <> 0)
+            IF (@T2 = @rings OR @T3 = @rings)
+            BEGIN
+                SELECT 'Game Won!'
+                -- Initialize New Game
+                EXEC dbo.INIT_Hanoi @rings
+            END
 
 END;
 GO
