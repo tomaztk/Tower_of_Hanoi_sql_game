@@ -13,16 +13,47 @@ Two simple rules apply:
 3. each move consists of taking upper most ring and placing it on the other rod (on top of another stacked rings or on empty rod)
 
 
-
-<!--![](/img/game2048.png?style=centerme) -->
 <div style="text-align:center"><img src="imgs/Hanoi1.png" alt="Tower of Hanoi" style="width:700px;"/></div>
 
 
 ## T-SQL Procedures for the game
 
-This
+Game has two simple procedures. The initialization of the table for the background information store is created with ```dbo.INIT_Hanoi``` procedure. And the play procedure for moving and stacking the rings around the rods, done with ```dbo.PLAY_Hanoi```.
+
+Three T-SQL files are available:
+1. Tower_Hanoi.sql - the script to the actual game
+2. Play_Game.sql - the sample gameplay 
+3. AutoSolve.sql - the SQLCMD gameplay for autosolving the game and watching the output in command-line.
+
+# Playing the game
+
+After running the content of Tower_Hanoi.sql file (creating two procedures ```dbo.INIT_Hanoi``` and ```dbo.Play_Hanoi``` ), start the game with:
+
+```
+EXEC dbo.INIT_Hanoi
+   @rings = 4
+```
+
+And continue playing the game:
+
+```
+EXEC dbo.PLAY_Hanoi
+     @from = 1
+    ,@to = 2;
+GO
+
+EXEC dbo.PLAY_Hanoi
+     @from = 1
+    ,@to = 3;
+GO
+```
+
+Opening the game in Azure Data Studio or in SSMS, the outlook do the game should be:
 
 
+<div style="text-align:center"><img src="imgs/Hanoi2.png" alt="Tower of Hanoi" style="width:600px;"/></div>
+
+Game prevents you to make illegal moves and resets when you restack all the rings onto a different rod (last rod).
 
 
 ## Forking or cloning the repository
