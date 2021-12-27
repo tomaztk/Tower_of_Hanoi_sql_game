@@ -63,9 +63,17 @@ Execute the content of the AutoSolve.sql file in SSMS or ADS. Once the procedure
 On your client machine, open CMD and navigate to your MSSQLServer folder (e.g.: C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER) and run the following CMD command (please note, I am using a named instance, hence -S switch):
 
 ```
-sqlcmd -S .\MSSQLSERVER2019 -q "EXEC dbo.AutoSolver @rings = 4"
+sqlcmd -S .\MSSQLSERVER2019 -q "EXEC TowerHanoi.dbo.AutoSolver @rings = 4"
 ```
 
+AutoSolver can be run also from SSMS or ADS:
+```
+USE TowerHanoi;
+GO
+
+EXEC dbo.AutoSolver 
+   @rings = 4
+```
 
 ## Forking or cloning the repository
 To work in GitHub, go to https://github.com/tomaztk/Tower_of_Hanoi_sql_game and fork the repository. Work in your own fork and when you are ready to submit to make a change or publish your sample for the first time, submit a pull request into the master branch of this repository. 
