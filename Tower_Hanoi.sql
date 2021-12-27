@@ -63,12 +63,12 @@ BEGIN
 	EXEC sp_executesql @tableCreate
 
 
-		declare @max int = @rings*4
+		DECLARE @max INT = @rings*4
 		
 		SELECT 
-			 REPLICATE(' ',(@max - t1*2)/2) + REPLICATE('#', T1*2) + REPLICATE(' ',(@max - t1*2)/2) as T1
-			,REPLICATE(' ',(@max - t1*2)/2) + REPLICATE('#', T2*2) + REPLICATE(' ',(@max - t1*2)/2)  AS T2
-			,REPLICATE(' ',(@max - t1*2)/2) + REPLICATE('#', T3*2) + REPLICATE(' ',(@max - t1*2)/2)  AS T3 
+			 REPLICATE(' ',(@max - T1*2)/2) + REPLICATE('#', T1*2) + REPLICATE(' ',(@max - T1*2)/2)  AS T1
+			,REPLICATE(' ',(@max - T2*2)/2) + REPLICATE('#', T2*2) + REPLICATE(' ',(@max - T2*2)/2)  AS T2
+			,REPLICATE(' ',(@max - T3*2)/2) + REPLICATE('#', T3*2) + REPLICATE(' ',(@max - T3*2)/2)  AS T3 
 		FROM hanoi
 		ORDER BY ID ASC
 
