@@ -78,7 +78,7 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE dbo.PLAY_Hanoi
+CREATE OR ALTER  PROCEDURE [dbo].[PLAY_Hanoi]
 
 /**************************************************************
 Procedure:          dbo.PLAY_Hanoi
@@ -120,7 +120,7 @@ BEGIN
 
 		-- FROM position
 		DECLARE @from_position NVARCHAR(1000)
-		SET @from_position =  'SELECT top 1 ID FROM dbo.hanoi where '+@from_Variable+' <> '''' order by id asc'
+		SET @from_position =  'SELECT top 1 ID FROM dbo.hanoi where '+@from_Variable+' <> 0 order by id asc'
 
 		DROP TABLE IF EXISTS #from_pos
 		CREATE table #from_pos  (val int)
@@ -129,7 +129,7 @@ BEGIN
 
 		-- FROM value
 		DECLARE @from_value NVARCHAR(1000)
-		SET @from_value =  'SELECT top 1 '+@from_variable+' FROM dbo.hanoi where '+@from_Variable+' <> '''' order by id asc'
+		SET @from_value =  'SELECT top 1 '+@from_variable+' FROM dbo.hanoi where '+@from_Variable+' <> 0 order by id asc'
 
 		DROP TABLE IF EXISTS #from_val
 		CREATE table #from_val  (val int)
@@ -143,7 +143,7 @@ BEGIN
 
 		-- TO position
 		DECLARE @to_position NVARCHAR(1000)
-		SET @to_position =  'SELECT top 1 ID FROM dbo.hanoi where '+@to_variable+' = '''' order by id desc'
+		SET @to_position =  'SELECT top 1 ID FROM dbo.hanoi where '+@to_variable+' = 0 order by id desc'
 
 		DROP TABLE IF EXISTS #to_pos
 		CREATE table #to_pos  (val int)
@@ -153,7 +153,7 @@ BEGIN
 
 		-- TO value
 		DECLARE @to_value NVARCHAR(1000)
-		SET @to_value =  'SELECT top 1 '+@to_variable+' FROM dbo.hanoi where '+@to_variable+' = '''' order by id desc'
+		SET @to_value =  'SELECT top 1 '+@to_variable+' FROM dbo.hanoi where '+@to_variable+' = 0 order by id desc'
 
 		DROP TABLE IF EXISTS #to_val
 		CREATE table #to_val  (val int)
@@ -171,12 +171,11 @@ BEGIN
 		EXEC sp_executesql @prev_to_val
 
         -- number of rings!
-		DECLARE @rings int = (SELECT COUNT(*) FROM dbo.hanoi)
-		DECLARE @max int = @rings*4
+		declare @rings int = (select COUNT(*) from dbo.hanoi)
+		declare @max int = @rings*4
 
 
 			--- internal update
-
 			-- add rules for update!!!!
 			IF ((SELECT ISNULL(val,0) FROM #to_prev_val) < (SELECT val FROM #from_val))
 			BEGIN
@@ -192,16 +191,15 @@ BEGIN
                     BEGIN
                         --update FROM pos/value
                         DECLARE @update_from NVARCHAR(1000)
-                        SET @update_from = 'update dbo.hanoi set '+@from_variable+' = (select '' '' ) WHERE ID =  (SELECT val FROM #from_pos) '
-                        print @update_from
+                        SET @update_from = 'update dbo.hanoi set '+@from_variable+' = (select 0 ) WHERE ID =  (SELECT val FROM #from_pos) '
                         EXEC sp_executesql @update_from
 
 
                         --update TO pos/value
                         DECLARE @update_to NVARCHAR(1000)
                         SET @update_to = 'update dbo.hanoi set '+@to_variable+' = (select val from #from_Val) WHERE ID = (SELECT val FROM #to_pos)'
-                        print @update_to
                         EXEC sp_executesql @update_to
+
 
                     END
 			END
@@ -213,7 +211,6 @@ BEGIN
 				,REPLICATE(' ',(@max - T3*2)/2) + REPLICATE('#', T3*2) + REPLICATE(' ',(@max - T3*2)/2)  AS T3 
 			FROM dbo.hanoi
 			ORDER BY ID ASC
-
 
 			-- check Tower 2 and Tower 3
 			DECLARE @t2 INT = (SELECT COUNT(T2) FROM Hanoi WHERE T2 <> 0)
