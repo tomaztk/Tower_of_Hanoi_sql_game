@@ -12,7 +12,7 @@ Two simple rules apply:
 3. each move consists of taking upper most ring and placing it on the other rod (on top of another stacked rings or on empty rod)
 
 
-<div style="text-align:center"><img src="imgs/Hanoi1.png" alt="Tower of Hanoi" style="width:700px;"/></div>
+<div style="text-align:center"><img src="imgs/Hanoi1_2.png" alt="Tower of Hanoi" style="width:700px;"/></div>
 
 
 ## T-SQL Procedures for the game
@@ -54,6 +54,10 @@ Opening the game in Azure Data Studio or in SSMS, the outlook do the game should
 
 Game prevents you to make illegal moves and resets when you restack all the rings onto a different rod (last rod).
 
+
+Actual Gameplay using Azure Data Studio (ADS):
+
+<div style="text-align:center"><img src="imgs/TowerOfHanoi.gif" alt="Tower of Hanoi" style="width:600px;"/></div>
 
 # Autosolver using SQL Server SQLCMD
 
