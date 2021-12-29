@@ -79,6 +79,8 @@ EXEC dbo.AutoSolver
    @rings = 4
 ```
 
+In both ways, it will stop once finished.
+
 ## Forking or cloning the repository
 To work in GitHub, go to https://github.com/tomaztk/Tower_of_Hanoi_sql_game and fork the repository. Work in your own fork and when you are ready to submit to make a change or publish your sample for the first time, submit a pull request into the master branch of this repository. 
 
